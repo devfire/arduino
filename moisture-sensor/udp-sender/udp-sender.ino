@@ -1,12 +1,7 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include <ArduinoJson.h>
-
-// Conversion factor for micro seconds to seconds
-#define uS_TO_S_FACTOR 1000000
-
-// Time ESP32 will go to sleep (in seconds)
-#define TIME_TO_SLEEP 10
+#include <esp_wifi.h>
 
 // holds the total boot counts
 RTC_DATA_ATTR int bootCount = 0;
@@ -18,7 +13,7 @@ const char * networkPswd = "-(igorpass)-";
 //IP address to send UDP data to:
 // either use the ip address of the server or
 // a network broadcast address
-const char * udpAddress = "htpc.coontie.com";
+const char * udpAddress = "iot.coontie.com";
 const int udpPort = 3333;
 
 //The udp library class
@@ -31,7 +26,7 @@ const int sensorPin = 34;
 int getSensorValue()
 {
   // how many readings to take
-  #define MAX_SENSOR_READS 10
+#define MAX_SENSOR_READS 10
 
   // variable for storing the moisture sensor value
   int sensorValue = 0;
@@ -52,10 +47,6 @@ void setup()
   // Debug console
   Serial.begin(115200);
 
-  //Increment boot number and print it every reboot
-  ++bootCount;
-  Serial.println("Boot number: " + String(bootCount));
-
   //Connect to the WiFi network
   WiFi.begin(networkName, networkPswd);
 
@@ -63,18 +54,21 @@ void setup()
     delay(50);
     Serial.print(".");
   }
+}
 
-  // schedule a wakeup in the future
-  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+void loop()
+{
+  //Increment boot number
+  ++bootCount;
 
-  // Reserve memory space for your JSON data
+  // Reserve memory space for our JSON data
   StaticJsonDocument<200> doc;
 
   //serialize the JSON document
-  doc["mac"] = String(WiFi.macAddress());
-  doc["feedName"] = "moisture";
-  doc["value"] = getSensorValue();
-  doc["bootCount"] = bootCount;
+  doc["mac"] = String(WiFi.macAddress()); //get the device MAC address
+  doc["feedName"] = "moisture"; //assign the feed name
+  doc["value"] = getSensorValue(); //get the reading
+  doc["bootCount"] = bootCount; //add the boot count for troubleshooting
 
   //This initializes the transfer buffer
   udp.begin(WiFi.localIP(), udpPort);
@@ -85,10 +79,7 @@ void setup()
   serializeJson(doc, udp);
   udp.println();
   udp.endPacket();
+  Serial.println();
 
-  esp_deep_sleep_start();
-}
-
-void loop()
-{
+  delay(600000);
 }
