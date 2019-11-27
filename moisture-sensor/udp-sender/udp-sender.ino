@@ -26,7 +26,7 @@ const int sensorPin = 34;
 int getSensorValue()
 {
   // how many readings to take
-#define MAX_SENSOR_READS 10
+  #define MAX_SENSOR_READS 10
 
   // variable for storing the moisture sensor value
   int sensorValue = 0;
@@ -38,6 +38,7 @@ int getSensorValue()
     delay(20);
   }
   sensorValue = sensorValue / MAX_SENSOR_READS;
+  Serial.println(sensorValue);
 
   return sensorValue;
 }
@@ -59,7 +60,7 @@ void setup()
 void loop()
 {
   //Increment boot number
-  ++bootCount;
+  //++bootCount;
 
   // Reserve memory space for our JSON data
   StaticJsonDocument<200> doc;
@@ -68,18 +69,19 @@ void loop()
   doc["mac"] = String(WiFi.macAddress()); //get the device MAC address
   doc["feedName"] = "moisture"; //assign the feed name
   doc["value"] = getSensorValue(); //get the reading
-  doc["bootCount"] = bootCount; //add the boot count for troubleshooting
+  //doc["bootCount"] = bootCount; //add the boot count for troubleshooting
 
   //This initializes the transfer buffer
   udp.begin(WiFi.localIP(), udpPort);
 
   //Send a packet
+  /*
   udp.beginPacket(udpAddress, udpPort);
   serializeJson(doc, Serial);
   serializeJson(doc, udp);
   udp.println();
   udp.endPacket();
   Serial.println();
-
-  delay(600000);
+  */
+  delay(3000);
 }
