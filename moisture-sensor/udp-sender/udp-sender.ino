@@ -75,13 +75,12 @@ void loop()
   udp.begin(WiFi.localIP(), udpPort);
 
   //Send a packet
-  /*
   udp.beginPacket(udpAddress, udpPort);
   serializeJson(doc, Serial);
   serializeJson(doc, udp);
   udp.println();
   udp.endPacket();
   Serial.println();
-  */
-  delay(3000);
+  
+  delay(60000);
 }
