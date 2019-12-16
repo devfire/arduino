@@ -44,6 +44,8 @@ void setup() {
 int      head  = 0, tail = -10; // Index of first 'on' and 'off' pixels
 uint32_t color = 0xFF0000;      // 'On' color (starts red)
 long  r = 0, g = 0, b = 0;
+int delta = 1;
+uint32_t desiredColor = 0;
 
 void loop() {
 
@@ -51,15 +53,16 @@ void loop() {
   g = random(0, 255);
   b = random(0, 255);
 
-  strip.setPixelColor(head, r, g, b); // 'On' pixel at head
-  
-  strip.setPixelColor(tail, 0);     // 'Off' pixel at tail
-  strip.show();                     // Refresh strip
-
-  delay(0);                        // Pause 20 milliseconds (~50 FPS)
-
-  if (++head >= NUMPIXELS) {        // Increment head index.  Off end of strip?
-    head = 0;                       //  Yes, reset head index to start
+  /*
+  desiredColor = strip.Color(r,g,b);
+  strip.fill(desiredColor, 0, NUMPIXELS);
+  strip.show(); 
+  delay (1000);
+  */
+  for (int pos=0;pos<=NUMPIXELS;pos++) {
+    strip.setPixelColor(pos, r, g, b); // 'On' pixel at head
+    strip.show();                     // Refresh strip
   }
-  if (++tail >= NUMPIXELS) tail = 0; // Increment, reset tail index
+  
+  //strip.setPixelColor(tail, 0);     // 'Off' pixel at tail
 }
