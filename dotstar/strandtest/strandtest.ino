@@ -26,8 +26,6 @@ Adafruit_DotStar strip(NUMPIXELS, DATAPIN, CLOCKPIN, DOTSTAR_BRG);
 //Adafruit_DotStar strip(NUMPIXELS, DOTSTAR_BRG);
 
 void setup() {
-  // Debug console
-  Serial.begin(115200);
 
 #if defined(__AVR_ATtiny85__) && (F_CPU == 16000000L)
   clock_prescale_set(clock_div_1); // Enable 16 MHz on Trinket
@@ -35,7 +33,6 @@ void setup() {
 
   strip.begin(); // Initialize pins for output
   strip.show();  // Turn all LEDs off ASAP
-  strip.setBrightness(5);
 }
 
 // Runs 10 LEDs at a time along strip, cycling through red, green and blue.
@@ -43,26 +40,18 @@ void setup() {
 
 int      head  = 0, tail = -10; // Index of first 'on' and 'off' pixels
 uint32_t color = 0xFF0000;      // 'On' color (starts red)
-long  r = 0, g = 0, b = 0;
-int delta = 1;
-uint32_t desiredColor = 0;
 
 void loop() {
 
-  r = random(0, 255);
-  g = random(0, 255);
-  b = random(0, 255);
+  strip.setPixelColor(head, color); // 'On' pixel at head
+  strip.setPixelColor(tail, 0);     // 'Off' pixel at tail
+  strip.show();                     // Refresh strip
+  //delay(20);                        // Pause 20 milliseconds (~50 FPS)
 
-  /*
-  desiredColor = strip.Color(r,g,b);
-  strip.fill(desiredColor, 0, NUMPIXELS);
-  strip.show(); 
-  delay (1000);
-  */
-  for (int pos=0;pos<=NUMPIXELS;pos++) {
-    strip.setPixelColor(pos, r, g, b); // 'On' pixel at head
-    strip.show();                     // Refresh strip
+  if(++head >= NUMPIXELS) {         // Increment head index.  Off end of strip?
+    head = 0;                       //  Yes, reset head index to start
+    if((color >>= 8) == 0)          //  Next color (R->G->B) ... past blue now?
+      color = 0xFF0000;             //   Yes, reset to red
   }
-  
-  //strip.setPixelColor(tail, 0);     // 'Off' pixel at tail
+  if(++tail >= NUMPIXELS) tail = 0; // Increment, reset tail index
 }
